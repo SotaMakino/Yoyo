@@ -6,8 +6,11 @@ fn main() {
     <html>
         <head>
             <title id='1'>Test</title>
-            <0></0>
         </head>
+        <body>
+            <!--  comment text. -->
+            <p class='inner'>Hello, <span id='name'>world!</span></p>
+        </body>
     </html>
     ";
 

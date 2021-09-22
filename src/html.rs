@@ -12,6 +12,12 @@ impl Parser {
         self.input[self.pos..].chars().next().unwrap()
     }
 
+    fn next_next_char(&self) -> char {
+        let mut iter = self.input[self.pos..].chars();
+        iter.next();
+        iter.next().unwrap()
+    }
+
     fn start_with(&self, s: &str) -> bool {
         self.input[self.pos..].starts_with(s)
     }
@@ -45,16 +51,25 @@ impl Parser {
 
     fn parse_tag_name(&mut self) -> String {
         self.consume_while(|char| match char {
-            'a'..='z' | 'A'..='Z' | '0'..='9' => true,
+            'a'..='z' | 'A'..='Z' => true,
             _ => false,
         })
     }
 
     fn parse_node(&mut self) -> dom::Node {
         match self.next_char() {
-            '<' => self.parse_element(),
+            '<' => match self.next_next_char() {
+                '!' => self.parse_comment(),
+                _ => self.parse_element(),
+            },
             _ => self.parse_text(),
         }
+    }
+
+    fn parse_comment(&mut self) -> dom::Node {
+        assert!(self.consume_char() == '<');
+        self.consume_while(|char| char != '<');
+        dom::comment()
     }
 
     fn parse_text(&mut self) -> dom::Node {
@@ -126,9 +141,5 @@ pub fn parse(source: String) -> dom::Node {
     }
     .parse_nodes();
 
-    if nodes.len() == 1 {
-        nodes.swap_remove(0)
-    } else {
-        dom::element("html".to_string(), HashMap::new(), nodes)
-    }
+    nodes.pop().unwrap()
 }
