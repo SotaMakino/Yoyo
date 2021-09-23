@@ -144,3 +144,30 @@ pub fn parse(source: String) -> dom::Node {
 
     nodes.pop().unwrap()
 }
+
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parse_nodes() {
+        let source = "<title id='1'>Test</title>";
+        let mut parser = Parser {
+            pos: 0,
+            input: source.to_string(),
+        };
+        let mut hash = HashMap::new();
+        hash.insert(String::from("id"), String::from("1"));
+        let expected = vec![dom::Node {
+            node_type: dom::NodeType::Element(dom::ElementData {
+                tag_names: "title".to_string(),
+                attributes: hash,
+            }),
+            children: vec![dom::Node {
+                node_type: dom::NodeType::Text("Test".to_string()),
+                children: vec![],
+            }],
+        }];
+
+        assert_eq!(Parser::parse_nodes(&mut parser), expected);
+    }
+}

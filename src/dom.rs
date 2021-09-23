@@ -2,8 +2,8 @@ use std::collections::HashMap;
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct Node {
-    node_type: NodeType,
-    children: Vec<Node>,
+    pub node_type: NodeType,
+    pub children: Vec<Node>,
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -15,8 +15,8 @@ pub enum NodeType {
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct ElementData {
-    tag_names: String,
-    attributes: AttrMap,
+    pub tag_names: String,
+    pub attributes: AttrMap,
 }
 
 type AttrMap = HashMap<String, String>;
