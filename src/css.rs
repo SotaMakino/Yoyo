@@ -114,7 +114,7 @@ impl Parser {
                     self.consume_char();
                     self.consume_whitespace()
                 }
-                '{' => break,
+                '#' | '{' => break,
                 _ => panic!("unexpected char in selector"),
             }
         }
@@ -122,10 +122,20 @@ impl Parser {
     }
 
     fn parse_simple_selector(&mut self) -> SimpleSelector {
-        SimpleSelector {
-            id: None,
-            class: None,
-            tag_name: Some(self.parse_tag_name()),
+        match self.next_char() {
+            '#' => {
+                self.consume_char();
+                return SimpleSelector {
+                    id: Some(self.parse_tag_name()),
+                    class: None,
+                    tag_name: None,
+                };
+            }
+            _ => SimpleSelector {
+                id: None,
+                class: None,
+                tag_name: Some(self.parse_tag_name()),
+            },
         }
     }
 }
@@ -136,7 +146,7 @@ mod tests {
 
     #[test]
     fn parse_simple_selectors() {
-        let source = "h1, h2{";
+        let source = "h1, h2 {";
         let mut parser = Parser {
             pos: 0,
             input: source.to_string(),
@@ -153,6 +163,22 @@ mod tests {
                 tag_name: Some("h2".to_string()),
             }),
         ];
+
+        assert_eq!(Parser::parse_selectors(&mut parser), expected);
+    }
+
+    #[test]
+    fn parse_id_selectors() {
+        let source = "#id {";
+        let mut parser = Parser {
+            pos: 0,
+            input: source.to_string(),
+        };
+        let expected = vec![Selector::Simple(SimpleSelector {
+            id: Some("id".to_string()),
+            class: None,
+            tag_name: None,
+        })];
 
         assert_eq!(Parser::parse_selectors(&mut parser), expected);
     }
