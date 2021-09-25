@@ -51,10 +51,7 @@ impl Parser {
     }
 
     fn parse_tag_name(&mut self) -> String {
-        self.consume_while(|char| match char {
-            'a'..='z' | 'A'..='Z' => true,
-            _ => false,
-        })
+        self.consume_while(|char| matches!(char, 'a'..='z' | 'A'..='Z'))
     }
 
     fn parse_node(&mut self) -> dom::Node {

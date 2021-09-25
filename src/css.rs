@@ -29,7 +29,7 @@ struct Declaration {
 enum Value {
     Keyword(String),
     Length(f32, Unit),
-    ColorValue(Color),
+    Color(Color),
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -102,19 +102,13 @@ impl Parser {
     }
 
     fn parse_name(&mut self) -> String {
-        self.consume_while(|char| match char {
-            'a'..='z' | 'A'..='Z' | '0'..='9' | '-' => true,
-            _ => false,
-        })
+        self.consume_while(|char| matches!(char, 'a'..='z' | 'A'..='Z' | '0'..='9' | '-'))
     }
 
     fn parse_number(&mut self) -> f32 {
-        self.consume_while(|char| match char {
-            '0'..='9' | '.' => true,
-            _ => false,
-        })
-        .parse()
-        .unwrap()
+        self.consume_while(|char| matches!(char, '0'..='9' | '.'))
+            .parse()
+            .unwrap()
     }
 
     fn parse_selectors(&mut self) -> Vec<Selector> {
@@ -138,11 +132,11 @@ impl Parser {
         match self.next_char() {
             '#' => {
                 self.consume_char();
-                return SimpleSelector {
+                SimpleSelector {
                     id: Some(self.parse_name()),
                     class: None,
                     tag_name: None,
-                };
+                }
             }
             _ => SimpleSelector {
                 id: None,
@@ -177,10 +171,7 @@ impl Parser {
         assert!(self.consume_char() == ':');
         self.consume_whitespace();
         let value = self.parse_value();
-        Declaration {
-            name: name.to_string(),
-            value: value,
-        }
+        Declaration { name, value }
     }
 
     fn parse_value(&mut self) -> Value {
@@ -190,7 +181,7 @@ impl Parser {
                 self.consume_while(|char| char != ';');
                 Value::Length(length, Unit::Px)
             }
-            _ => Value::Keyword(self.parse_name().to_string()),
+            _ => Value::Keyword(self.parse_name()),
         }
     }
 }
