@@ -1,5 +1,3 @@
-use std::collections::btree_set::Union;
-
 struct StyleSheet {
     rules: Vec<Rule>,
 }
