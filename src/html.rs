@@ -145,6 +145,7 @@ pub fn parse(source: String) -> dom::Node {
     nodes.pop().unwrap()
 }
 
+#[cfg(test)]
 mod tests {
     use super::*;
 
@@ -161,7 +162,10 @@ mod tests {
 
     #[test]
     fn parse_nodes_with_comments() {
-        let source = "<div><!-- comments --><title id='1'>Test</title></div>";
+        let source = "<div>
+        <!-- comments --><title id='1'>
+        Test</title>
+        </div>";
         let mut parser = Parser {
             pos: 0,
             input: source.to_string(),
