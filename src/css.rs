@@ -2,6 +2,7 @@ struct StyleSheet {
     rules: Vec<Rule>,
 }
 
+#[derive(Debug)]
 struct Rule {
     selectors: Vec<Selector>,
     declarations: Vec<Declaration>,
@@ -189,6 +190,22 @@ impl Parser {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn parse_rules() {
+        let source = "h1,
+        h2,
+        h3 {
+          margin: auto;
+          display: inline;
+        }
+        ";
+        let mut parser = Parser {
+            pos: 0,
+            input: source.to_string(),
+        };
+        println!("{:?}", Parser::parse_rules(&mut parser));
+    }
 
     #[test]
     fn parse_simple_selectors() {
