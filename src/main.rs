@@ -1,6 +1,7 @@
 mod css;
 mod dom;
 mod html;
+mod style;
 
 fn main() {
     let source = "

@@ -1,44 +1,44 @@
-struct StyleSheet {
-    rules: Vec<Rule>,
+pub struct StyleSheet {
+    pub rules: Vec<Rule>,
 }
 
 #[derive(Debug)]
-struct Rule {
-    selectors: Vec<Selector>,
-    declarations: Vec<Declaration>,
+pub struct Rule {
+    pub selectors: Vec<Selector>,
+    pub declarations: Vec<Declaration>,
 }
 
 #[derive(Debug, PartialEq, Eq)]
-enum Selector {
+pub enum Selector {
     Simple(SimpleSelector),
 }
 
 #[derive(Debug, PartialEq, Eq)]
-struct SimpleSelector {
-    tag_name: Option<String>,
-    id: Option<String>,
-    class: Option<String>,
+pub struct SimpleSelector {
+    pub tag_name: Option<String>,
+    pub id: Option<String>,
+    pub class: Vec<String>,
 }
 
-#[derive(Debug, PartialEq)]
-struct Declaration {
-    name: String,
-    value: Value,
+#[derive(Debug, PartialEq, Clone)]
+pub struct Declaration {
+    pub name: String,
+    pub value: Value,
 }
 
-#[derive(Debug, PartialEq)]
-enum Value {
+#[derive(Debug, PartialEq, Clone)]
+pub enum Value {
     Keyword(String),
     Length(f32, Unit),
     Color(Color),
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 enum Unit {
     Px,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 struct Color {
     r: u8,
     g: u8,
@@ -52,7 +52,7 @@ impl Selector {
     pub fn specificity(&self) -> Specificity {
         let Selector::Simple(ref simple) = *self;
         let a = simple.id.iter().count();
-        let b = simple.class.as_ref().unwrap().len();
+        let b = simple.class.len();
         let c = simple.tag_name.iter().count();
         (a, b, c)
     }
@@ -130,20 +130,21 @@ impl Parser {
     }
 
     fn parse_simple_selector(&mut self) -> SimpleSelector {
+        let mut selector = SimpleSelector {
+            id: None,
+            class: Vec::new(),
+            tag_name: None,
+        };
         match self.next_char() {
             '#' => {
                 self.consume_char();
-                SimpleSelector {
-                    id: Some(self.parse_name()),
-                    class: None,
-                    tag_name: None,
-                }
+                selector.id = Some(self.parse_name());
+                selector
             }
-            _ => SimpleSelector {
-                id: None,
-                class: None,
-                tag_name: Some(self.parse_name()),
-            },
+            _ => {
+                selector.tag_name = Some(self.parse_name());
+                selector
+            }
         }
     }
 
@@ -217,12 +218,12 @@ mod tests {
         let expected = vec![
             Selector::Simple(SimpleSelector {
                 id: None,
-                class: None,
+                class: Vec::new(),
                 tag_name: Some("h1".to_string()),
             }),
             Selector::Simple(SimpleSelector {
                 id: None,
-                class: None,
+                class: Vec::new(),
                 tag_name: Some("h2".to_string()),
             }),
         ];
@@ -239,7 +240,7 @@ mod tests {
         };
         let expected = vec![Selector::Simple(SimpleSelector {
             id: Some("id".to_string()),
-            class: None,
+            class: Vec::new(),
             tag_name: None,
         })];
 
