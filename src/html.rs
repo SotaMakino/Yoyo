@@ -147,7 +147,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn parse_nodes() {
+    fn test_parse_nodes() {
         let source = "<title id='1'>Test</title>";
         let mut parser = Parser {
             pos: 0,
@@ -158,7 +158,7 @@ mod tests {
     }
 
     #[test]
-    fn parse_nodes_with_comments() {
+    fn test_parse_nodes_with_comments() {
         let source = "<div>
         <!-- comments --><title id='1'>
         Test</title>

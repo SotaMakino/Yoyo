@@ -192,8 +192,15 @@ impl Parser {
 mod tests {
     use super::*;
 
+    fn get_parser(source: &str) -> Parser {
+        Parser {
+            pos: 0,
+            input: source.to_string(),
+        }
+    }
+
     #[test]
-    fn parse_rules() {
+    fn test_parse_rules() {
         let source = "h1,
         h2,
         h3 {
@@ -201,20 +208,12 @@ mod tests {
           display: inline;
         }
         ";
-        let mut parser = Parser {
-            pos: 0,
-            input: source.to_string(),
-        };
-        println!("{:?}", Parser::parse_rules(&mut parser));
+        println!("{:?}", Parser::parse_rules(&mut get_parser(source)));
     }
 
     #[test]
-    fn parse_simple_selectors() {
+    fn test_parse_simple_selectors() {
         let source = "h1, h2 {";
-        let mut parser = Parser {
-            pos: 0,
-            input: source.to_string(),
-        };
         let expected = vec![
             Selector::Simple(SimpleSelector {
                 id: None,
@@ -228,47 +227,35 @@ mod tests {
             }),
         ];
 
-        assert_eq!(Parser::parse_selectors(&mut parser), expected);
+        assert_eq!(Parser::parse_selectors(&mut get_parser(source)), expected);
     }
 
     #[test]
-    fn parse_id_selectors() {
+    fn test_parse_id_selectors() {
         let source = "#id {";
-        let mut parser = Parser {
-            pos: 0,
-            input: source.to_string(),
-        };
         let expected = vec![Selector::Simple(SimpleSelector {
             id: Some("id".to_string()),
             class: Vec::new(),
             tag_name: None,
         })];
 
-        assert_eq!(Parser::parse_selectors(&mut parser), expected);
+        assert_eq!(Parser::parse_selectors(&mut get_parser(source)), expected);
     }
 
     #[test]
-    fn parse_declarations() {
+    fn test_parse_declarations() {
         let source = "{
             display: none;
             margin-left: 10.2px;
           }";
-        let mut parser = Parser {
-            pos: 0,
-            input: source.to_string(),
-        };
-        println!("{:?}", Parser::parse_declarations(&mut parser));
+        println!("{:?}", Parser::parse_declarations(&mut get_parser(source)));
     }
 
     #[test]
-    fn parse_declaration() {
+    fn test_parse_declaration() {
         let source = "margin: auto;";
-        let mut parser = Parser {
-            pos: 0,
-            input: source.to_string(),
-        };
         assert_eq!(
-            Parser::parse_declaration(&mut parser),
+            Parser::parse_declaration(&mut get_parser(source)),
             Declaration {
                 name: "margin".to_string(),
                 value: Value::Keyword("auto".to_string())
@@ -277,27 +264,19 @@ mod tests {
     }
 
     #[test]
-    fn parse_keyword_value() {
+    fn test_parse_keyword_value() {
         let source = "auto;";
-        let mut parser = Parser {
-            pos: 0,
-            input: source.to_string(),
-        };
         assert_eq!(
-            Parser::parse_value(&mut parser),
+            Parser::parse_value(&mut get_parser(source)),
             Value::Keyword("auto".to_string())
         );
     }
 
     #[test]
-    fn parse_unit_value() {
+    fn test_parse_unit_value() {
         let source = "10px";
-        let mut parser = Parser {
-            pos: 0,
-            input: source.to_string(),
-        };
         assert_eq!(
-            Parser::parse_value(&mut parser),
+            Parser::parse_value(&mut get_parser(source)),
             Value::Length(10.0, Unit::Px)
         );
     }

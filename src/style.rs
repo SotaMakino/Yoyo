@@ -93,15 +93,17 @@ mod tests {
 
     use super::*;
 
-    #[test]
-    fn test_match_rules() {
+    fn elem() -> dom::ElementData {
         let mut hash = HashMap::new();
         hash.insert("id".to_string(), "1".to_string());
-        let elem = dom::ElementData {
+        dom::ElementData {
             tag_name: "h1".to_string(),
             attributes: hash,
-        };
-        let style_sheet = css::StyleSheet {
+        }
+    }
+
+    fn style_sheet() -> css::StyleSheet {
+        css::StyleSheet {
             rules: vec![css::Rule {
                 selectors: vec![css::Selector::Simple(css::SimpleSelector {
                     tag_name: Some("h1".to_string()),
@@ -113,19 +115,16 @@ mod tests {
                     value: css::Value::Keyword("auto".to_string()),
                 }],
             }],
-        };
+        }
+    }
 
-        println!("{:?}", match_rules(&elem, &style_sheet));
+    #[test]
+    fn test_match_rules() {
+        println!("{:?}", match_rules(&elem(), &style_sheet()));
     }
 
     #[test]
     fn test_matches_simple_selectors() {
-        let mut hash = HashMap::new();
-        hash.insert("id".to_string(), "1".to_string());
-        let elem = dom::ElementData {
-            tag_name: "h1".to_string(),
-            attributes: hash,
-        };
         let selector_with_heading = css::SimpleSelector {
             tag_name: Some("h1".to_string()),
             id: None,
@@ -136,7 +135,7 @@ mod tests {
             id: None,
             class: Vec::new(),
         };
-        assert!(matches_simple_selectors(&elem, &selector_with_heading));
-        assert!(!matches_simple_selectors(&elem, &selector_with_para));
+        assert!(matches_simple_selectors(&elem(), &selector_with_heading));
+        assert!(!matches_simple_selectors(&elem(), &selector_with_para));
     }
 }
