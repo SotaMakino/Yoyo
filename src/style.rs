@@ -93,49 +93,91 @@ mod tests {
 
     use super::*;
 
-    fn elem() -> dom::ElementData {
-        let mut hash = HashMap::new();
-        hash.insert("id".to_string(), "1".to_string());
-        dom::ElementData {
-            tag_name: "h1".to_string(),
-            attributes: hash,
+    fn rule_1() -> css::Rule {
+        css::Rule {
+            selectors: vec![css::Selector::Simple(css::SimpleSelector {
+                tag_name: None,
+                id:  Some("1".to_string()),
+                class: Vec::new(),
+            })],
+            declarations: vec![css::Declaration {
+                name: "margin".to_string(),
+                value: css::Value::Keyword("auto".to_string()),
+            }],
+        }
+    }
+
+    fn rule_2() -> css::Rule {
+        css::Rule {
+            selectors: vec![css::Selector::Simple(css::SimpleSelector {
+                tag_name: Some("h1".to_string()),
+                id:  None,
+                class: Vec::new(),
+            })],
+            declarations: vec![css::Declaration {
+                name: "margin".to_string(),
+                value: css::Value::Keyword("0".to_string()),
+            }],
         }
     }
 
     fn style_sheet() -> css::StyleSheet {
         css::StyleSheet {
-            rules: vec![css::Rule {
-                selectors: vec![css::Selector::Simple(css::SimpleSelector {
-                    tag_name: Some("h1".to_string()),
-                    id: None,
-                    class: Vec::new(),
-                })],
-                declarations: vec![css::Declaration {
-                    name: "margin".to_string(),
-                    value: css::Value::Keyword("auto".to_string()),
-                }],
-            }],
+            rules: vec![rule_1(), rule_2()],
         }
     }
 
     #[test]
-    fn test_match_rules() {
-        println!("{:?}", match_rules(&elem(), &style_sheet()));
-    }
-
-    #[test]
     fn test_matches_simple_selectors() {
-        let selector_with_heading = css::SimpleSelector {
+        let mut hash = HashMap::new();
+        hash.insert("id".to_string(), "1".to_string());
+        hash.insert("class".to_string(), "square".to_string());
+        let elem = dom::ElementData {
+            tag_name: "h1".to_string(),
+            attributes: hash,
+        };
+        let heading_selector = css::SimpleSelector {
             tag_name: Some("h1".to_string()),
             id: None,
             class: Vec::new(),
         };
-        let selector_with_para = css::SimpleSelector {
-            tag_name: Some("p".to_string()),
-            id: None,
+        let id_selector = css::SimpleSelector {
+            tag_name: None,
+            id: Some("1".to_string()),
             class: Vec::new(),
         };
-        assert!(matches_simple_selectors(&elem(), &selector_with_heading));
-        assert!(!matches_simple_selectors(&elem(), &selector_with_para));
+        let class_selector = css::SimpleSelector {
+            tag_name: None,
+            id: None,
+            class: vec!["square".to_string()],
+        };
+
+        assert!(matches_simple_selectors(&elem, &heading_selector));
+        assert!(matches_simple_selectors(&elem, &id_selector));
+        assert!(matches_simple_selectors(&elem, &class_selector))
+    }
+
+    #[test]
+    fn test_match_rules() {
+        let mut hash = HashMap::new();
+        hash.insert("id".to_string(), "1".to_string());
+        let elem = dom::ElementData {
+            tag_name: "h1".to_string(),
+            attributes: hash,
+        };
+
+        println!("{:?}", match_rules(&elem, &style_sheet()));
+    }
+
+    #[test]
+    fn test_specified_values(){
+        let mut hash = HashMap::new();
+        hash.insert("id".to_string(), "1".to_string());
+        let elem = dom::ElementData {
+            tag_name: "h1".to_string(),
+            attributes: hash,
+        };
+
+        println!("{:?}", specified_values(&elem, &style_sheet()));
     }
 }
