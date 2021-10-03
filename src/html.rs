@@ -51,7 +51,7 @@ impl Parser {
     }
 
     fn parse_tag_name(&mut self) -> String {
-        self.consume_while(|char| matches!(char, 'a'..='z' | 'A'..='Z'))
+        self.consume_while(|char| matches!(char, 'a'..='z' | 'A'..='Z' | '0'..='9' ))
     }
 
     fn parse_node(&mut self) -> dom::Node {
@@ -146,28 +146,142 @@ pub fn parse(source: String) -> dom::Node {
 mod tests {
     use super::*;
 
+    fn get_parser(source: &str) -> Parser{
+        Parser {
+            pos: 0,
+            input: source.to_string(),
+        }
+    }
+
+    #[test]
+    fn test_next_char(){
+        let source = "Test";
+
+        assert_eq!(Parser::next_char(&get_parser(source)), 'T');
+    }
+
+    #[test]
+    fn test_next_next_char(){
+        let source = "Test";
+
+        assert_eq!(Parser::next_next_char(&get_parser(source)), 'e');
+    }
+
+    #[test]
+    fn test_start_with(){
+        let source = "Test";
+
+        assert!(Parser::start_with(&get_parser(source), "T"));
+        assert!(!Parser::start_with(&get_parser(source), "e"));
+    }
+
+    #[test]
+    fn test_eof(){
+        let source = "Test";
+        let mut parser = get_parser(source);
+
+        assert!(!Parser::eof(&parser));
+        parser.pos = 4;
+        assert!(Parser::eof(&parser));
+    }
+
+    #[test]
+    fn test_consume_char(){
+        let source = "Test";
+
+        assert_eq!(Parser::consume_char(&mut get_parser(source)), 'T');
+    }
+
+    #[test]
+    fn test_consume_while(){
+        let source = "test";
+
+        assert_eq!(Parser::consume_while(&mut get_parser(source), |char| matches!(char, 'a'..='z')), "test");
+    }
+
+    #[test]
+    fn test_consume_whitespace(){
+        let source = "   test";
+        let mut parser =  get_parser(source);
+
+        Parser::consume_whitespace(&mut parser);
+        assert_eq!(parser.pos, 3);
+    }
+
+    #[test]
+    fn test_parse_tag_name(){
+        let source = "h1>";
+
+        assert_eq!(Parser::parse_tag_name(&mut get_parser(source)), "h1");
+    }
+
+    #[test]
+    fn test_parse_node(){
+        let comment = "<!-- comment -->";
+        let elem = "<title>Title</title>";
+        let text  = "text";
+
+        assert_eq!(Parser::parse_node(&mut get_parser(comment)), Parser::parse_comment(&mut get_parser(comment)));
+        assert_eq!(Parser::parse_node(&mut get_parser(elem)), Parser::parse_element(&mut get_parser(elem)));
+        assert_eq!(Parser::parse_node(&mut get_parser(text)), Parser::parse_text(&mut get_parser(text)));
+    }
+
+    #[test]
+    fn test_parse_comment(){
+        let comment = "<!-- comment -->";
+
+        assert_eq!(Parser::parse_comment(&mut get_parser(comment)), dom::comment());
+    }
+
+    #[test]
+    fn test_parse_text() {
+        let text  = "text<p>";
+        let node =  dom::Node {
+            node_type: dom::NodeType::Text("text".to_string()),
+            children: Vec::new(),
+        };
+
+        assert_eq!(Parser::parse_text(&mut get_parser(text)), node);
+    }
+
+    #[test]
+    fn test_parse_element(){
+        let elem = "<title>Title</title>";
+        let expected = dom::element("title".to_string(),  HashMap::new(), vec![dom::text("Title".to_string())]);
+
+        assert_eq!(Parser::parse_element(&mut get_parser(elem)), expected);
+    }
+
+    #[test]
+    fn test_parse_attr(){
+        let attr = "id=\"1\"";
+
+        assert_eq!(Parser::parse_attr(&mut get_parser(attr)), ("id".to_string(), "1".to_string()));
+    }
+
+    #[test]
+    fn test_parse_attributes_value(){
+        let value = "\"1\"";
+
+        assert_eq!(Parser::parse_attributes_value(&mut get_parser(value)), "1".to_string());
+    }
+
     #[test]
     fn test_parse_nodes() {
         let source = "<title id='1'>Test</title>";
-        let mut parser = Parser {
-            pos: 0,
-            input: source.to_string(),
-        };
 
-        println!("{:?}", Parser::parse_nodes(&mut parser));
+        println!("{:?}", Parser::parse_nodes(&mut get_parser(source)));
     }
 
     #[test]
     fn test_parse_nodes_with_comments() {
-        let source = "<div>
-        <!-- comments --><title id='1'>
-        Test</title>
-        </div>";
-        let mut parser = Parser {
-            pos: 0,
-            input: source.to_string(),
-        };
+        let source = "
+        <div>
+            <!-- comments -->
+            <title id='1'>Test</title>
+        </div>
+        ";
 
-        println!("{:?}", Parser::parse_nodes(&mut parser));
+        println!("{:?}", Parser::parse_nodes(&mut get_parser(source)));
     }
 }
