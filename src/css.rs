@@ -34,12 +34,12 @@ pub enum Value {
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]
-enum Unit {
+pub enum Unit {
     Px,
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]
-struct Color {
+pub struct Color {
     r: u8,
     g: u8,
     b: u8,

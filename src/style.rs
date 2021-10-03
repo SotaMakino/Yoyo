@@ -97,7 +97,7 @@ mod tests {
         css::Rule {
             selectors: vec![css::Selector::Simple(css::SimpleSelector {
                 tag_name: None,
-                id:  Some("1".to_string()),
+                id: Some("1".to_string()),
                 class: Vec::new(),
             })],
             declarations: vec![css::Declaration {
@@ -111,7 +111,7 @@ mod tests {
         css::Rule {
             selectors: vec![css::Selector::Simple(css::SimpleSelector {
                 tag_name: Some("h1".to_string()),
-                id:  None,
+                id: None,
                 class: Vec::new(),
             })],
             declarations: vec![css::Declaration {
@@ -170,7 +170,7 @@ mod tests {
     }
 
     #[test]
-    fn test_specified_values(){
+    fn test_specified_values() {
         let mut hash = HashMap::new();
         hash.insert("id".to_string(), "1".to_string());
         let elem = dom::ElementData {

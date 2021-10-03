@@ -146,7 +146,7 @@ pub fn parse(source: String) -> dom::Node {
 mod tests {
     use super::*;
 
-    fn get_parser(source: &str) -> Parser{
+    fn get_parser(source: &str) -> Parser {
         Parser {
             pos: 0,
             input: source.to_string(),
@@ -154,21 +154,21 @@ mod tests {
     }
 
     #[test]
-    fn test_next_char(){
+    fn test_next_char() {
         let source = "Test";
 
         assert_eq!(Parser::next_char(&get_parser(source)), 'T');
     }
 
     #[test]
-    fn test_next_next_char(){
+    fn test_next_next_char() {
         let source = "Test";
 
         assert_eq!(Parser::next_next_char(&get_parser(source)), 'e');
     }
 
     #[test]
-    fn test_start_with(){
+    fn test_start_with() {
         let source = "Test";
 
         assert!(Parser::start_with(&get_parser(source), "T"));
@@ -176,7 +176,7 @@ mod tests {
     }
 
     #[test]
-    fn test_eof(){
+    fn test_eof() {
         let source = "Test";
         let mut parser = get_parser(source);
 
@@ -186,57 +186,72 @@ mod tests {
     }
 
     #[test]
-    fn test_consume_char(){
+    fn test_consume_char() {
         let source = "Test";
 
         assert_eq!(Parser::consume_char(&mut get_parser(source)), 'T');
     }
 
     #[test]
-    fn test_consume_while(){
+    fn test_consume_while() {
         let source = "test";
 
-        assert_eq!(Parser::consume_while(&mut get_parser(source), |char| matches!(char, 'a'..='z')), "test");
+        assert_eq!(
+            Parser::consume_while(&mut get_parser(source), |char| matches!(char, 'a'..='z')),
+            "test"
+        );
     }
 
     #[test]
-    fn test_consume_whitespace(){
+    fn test_consume_whitespace() {
         let source = "   test";
-        let mut parser =  get_parser(source);
+        let mut parser = get_parser(source);
 
         Parser::consume_whitespace(&mut parser);
         assert_eq!(parser.pos, 3);
     }
 
     #[test]
-    fn test_parse_tag_name(){
+    fn test_parse_tag_name() {
         let source = "h1>";
 
         assert_eq!(Parser::parse_tag_name(&mut get_parser(source)), "h1");
     }
 
     #[test]
-    fn test_parse_node(){
+    fn test_parse_node() {
         let comment = "<!-- comment -->";
         let elem = "<title>Title</title>";
-        let text  = "text";
+        let text = "text";
 
-        assert_eq!(Parser::parse_node(&mut get_parser(comment)), Parser::parse_comment(&mut get_parser(comment)));
-        assert_eq!(Parser::parse_node(&mut get_parser(elem)), Parser::parse_element(&mut get_parser(elem)));
-        assert_eq!(Parser::parse_node(&mut get_parser(text)), Parser::parse_text(&mut get_parser(text)));
+        assert_eq!(
+            Parser::parse_node(&mut get_parser(comment)),
+            Parser::parse_comment(&mut get_parser(comment))
+        );
+        assert_eq!(
+            Parser::parse_node(&mut get_parser(elem)),
+            Parser::parse_element(&mut get_parser(elem))
+        );
+        assert_eq!(
+            Parser::parse_node(&mut get_parser(text)),
+            Parser::parse_text(&mut get_parser(text))
+        );
     }
 
     #[test]
-    fn test_parse_comment(){
+    fn test_parse_comment() {
         let comment = "<!-- comment -->";
 
-        assert_eq!(Parser::parse_comment(&mut get_parser(comment)), dom::comment());
+        assert_eq!(
+            Parser::parse_comment(&mut get_parser(comment)),
+            dom::comment()
+        );
     }
 
     #[test]
     fn test_parse_text() {
-        let text  = "text<p>";
-        let node =  dom::Node {
+        let text = "text<p>";
+        let node = dom::Node {
             node_type: dom::NodeType::Text("text".to_string()),
             children: Vec::new(),
         };
@@ -245,25 +260,35 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_element(){
+    fn test_parse_element() {
         let elem = "<title>Title</title>";
-        let expected = dom::element("title".to_string(),  HashMap::new(), vec![dom::text("Title".to_string())]);
+        let expected = dom::element(
+            "title".to_string(),
+            HashMap::new(),
+            vec![dom::text("Title".to_string())],
+        );
 
         assert_eq!(Parser::parse_element(&mut get_parser(elem)), expected);
     }
 
     #[test]
-    fn test_parse_attr(){
+    fn test_parse_attr() {
         let attr = "id=\"1\"";
 
-        assert_eq!(Parser::parse_attr(&mut get_parser(attr)), ("id".to_string(), "1".to_string()));
+        assert_eq!(
+            Parser::parse_attr(&mut get_parser(attr)),
+            ("id".to_string(), "1".to_string())
+        );
     }
 
     #[test]
-    fn test_parse_attributes_value(){
+    fn test_parse_attributes_value() {
         let value = "\"1\"";
 
-        assert_eq!(Parser::parse_attributes_value(&mut get_parser(value)), "1".to_string());
+        assert_eq!(
+            Parser::parse_attributes_value(&mut get_parser(value)),
+            "1".to_string()
+        );
     }
 
     #[test]
