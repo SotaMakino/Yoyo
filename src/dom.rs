@@ -57,3 +57,51 @@ pub fn element(tag_name: String, attrs: AttrMap, children: Vec<Node>) -> Node {
         children,
     }
 }
+
+#[cfg(test)]
+mod tests {
+
+    use super::*;
+
+    #[test]
+    fn test_text() {
+        let data = "data".to_string();
+        let data2 = "data".to_string();
+        assert_eq!(
+            text(data),
+            Node {
+                node_type: NodeType::Text(data2),
+                children: vec![]
+            }
+        );
+    }
+
+    #[test]
+    fn test_comment() {
+        assert_eq!(
+            comment(),
+            Node {
+                node_type: NodeType::Comment(),
+                children: vec![]
+            }
+        );
+    }
+
+    #[test]
+    fn test_element() {
+        let mut attrs = HashMap::new();
+        attrs.insert("id".to_string(), "1".to_string());
+        let mut attrs2 = HashMap::new();
+        attrs2.insert("id".to_string(), "1".to_string());
+        assert_eq!(
+            element("h1".to_string(), attrs, vec![]),
+            Node {
+                node_type: NodeType::Element(ElementData {
+                    tag_name: "h1".to_string(),
+                    attributes: attrs2
+                }),
+                children: vec![]
+            }
+        );
+    }
+}

@@ -151,7 +151,6 @@ mod tests {
             id: None,
             class: vec!["square".to_string()],
         };
-
         assert!(matches_simple_selectors(&elem, &heading_selector));
         assert!(matches_simple_selectors(&elem, &id_selector));
         assert!(matches_simple_selectors(&elem, &class_selector))
@@ -165,7 +164,6 @@ mod tests {
             tag_name: "h1".to_string(),
             attributes: hash,
         };
-
         println!("{:?}", match_rules(&elem, &style_sheet()));
     }
 
@@ -177,7 +175,6 @@ mod tests {
             tag_name: "h1".to_string(),
             attributes: hash,
         };
-
         println!("{:?}", specified_values(&elem, &style_sheet()));
     }
 }

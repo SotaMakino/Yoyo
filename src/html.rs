@@ -156,21 +156,18 @@ mod tests {
     #[test]
     fn test_next_char() {
         let source = "Test";
-
         assert_eq!(Parser::next_char(&get_parser(source)), 'T');
     }
 
     #[test]
     fn test_next_next_char() {
         let source = "Test";
-
         assert_eq!(Parser::next_next_char(&get_parser(source)), 'e');
     }
 
     #[test]
     fn test_start_with() {
         let source = "Test";
-
         assert!(Parser::start_with(&get_parser(source), "T"));
         assert!(!Parser::start_with(&get_parser(source), "e"));
     }
@@ -179,7 +176,6 @@ mod tests {
     fn test_eof() {
         let source = "Test";
         let mut parser = get_parser(source);
-
         assert!(!Parser::eof(&parser));
         parser.pos = 4;
         assert!(Parser::eof(&parser));
@@ -188,14 +184,12 @@ mod tests {
     #[test]
     fn test_consume_char() {
         let source = "Test";
-
         assert_eq!(Parser::consume_char(&mut get_parser(source)), 'T');
     }
 
     #[test]
     fn test_consume_while() {
         let source = "test";
-
         assert_eq!(
             Parser::consume_while(&mut get_parser(source), |char| matches!(char, 'a'..='z')),
             "test"
@@ -206,7 +200,6 @@ mod tests {
     fn test_consume_whitespace() {
         let source = "   test";
         let mut parser = get_parser(source);
-
         Parser::consume_whitespace(&mut parser);
         assert_eq!(parser.pos, 3);
     }
@@ -214,7 +207,6 @@ mod tests {
     #[test]
     fn test_parse_tag_name() {
         let source = "h1>";
-
         assert_eq!(Parser::parse_tag_name(&mut get_parser(source)), "h1");
     }
 
@@ -223,7 +215,6 @@ mod tests {
         let comment = "<!-- comment -->";
         let elem = "<title>Title</title>";
         let text = "text";
-
         assert_eq!(
             Parser::parse_node(&mut get_parser(comment)),
             Parser::parse_comment(&mut get_parser(comment))
@@ -241,7 +232,6 @@ mod tests {
     #[test]
     fn test_parse_comment() {
         let comment = "<!-- comment -->";
-
         assert_eq!(
             Parser::parse_comment(&mut get_parser(comment)),
             dom::comment()
@@ -255,7 +245,6 @@ mod tests {
             node_type: dom::NodeType::Text("text".to_string()),
             children: Vec::new(),
         };
-
         assert_eq!(Parser::parse_text(&mut get_parser(text)), node);
     }
 
@@ -267,14 +256,12 @@ mod tests {
             HashMap::new(),
             vec![dom::text("Title".to_string())],
         );
-
         assert_eq!(Parser::parse_element(&mut get_parser(elem)), expected);
     }
 
     #[test]
     fn test_parse_attr() {
         let attr = "id=\"1\"";
-
         assert_eq!(
             Parser::parse_attr(&mut get_parser(attr)),
             ("id".to_string(), "1".to_string())
@@ -284,7 +271,6 @@ mod tests {
     #[test]
     fn test_parse_attributes_value() {
         let value = "\"1\"";
-
         assert_eq!(
             Parser::parse_attributes_value(&mut get_parser(value)),
             "1".to_string()
@@ -294,7 +280,6 @@ mod tests {
     #[test]
     fn test_parse_nodes() {
         let source = "<title id='1'>Test</title>";
-
         println!("{:?}", Parser::parse_nodes(&mut get_parser(source)));
     }
 
@@ -306,7 +291,6 @@ mod tests {
             <title id='1'>Test</title>
         </div>
         ";
-
         println!("{:?}", Parser::parse_nodes(&mut get_parser(source)));
     }
 }

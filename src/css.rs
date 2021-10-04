@@ -226,7 +226,6 @@ mod tests {
                 tag_name: Some("h2".to_string()),
             }),
         ];
-
         assert_eq!(Parser::parse_selectors(&mut get_parser(source)), expected);
     }
 
@@ -238,7 +237,6 @@ mod tests {
             class: Vec::new(),
             tag_name: None,
         })];
-
         assert_eq!(Parser::parse_selectors(&mut get_parser(source)), expected);
     }
 
