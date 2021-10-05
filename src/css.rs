@@ -122,7 +122,7 @@ impl Parser {
                     self.consume_char();
                     self.consume_whitespace();
                 }
-                '#' | '{' => break,
+                '{' => break,
                 _ => panic!("unexpected char in selector"),
             }
         }
@@ -135,17 +135,26 @@ impl Parser {
             class: Vec::new(),
             tag_name: None,
         };
-        match self.next_char() {
-            '#' => {
-                self.consume_char();
-                selector.id = Some(self.parse_name());
-                selector
-            }
-            _ => {
-                selector.tag_name = Some(self.parse_name());
-                selector
+        while !self.eof() {
+            self.consume_whitespace();
+            match self.next_char() {
+                '#' => {
+                    self.consume_char();
+                    selector.id = Some(self.parse_name());
+                }
+                '.' => {
+                    self.consume_char();
+                    selector.class.push(self.parse_name());
+                }
+                ',' | '{' => {
+                    break;
+                }
+                _ => {
+                    selector.tag_name = Some(self.parse_name());
+                }
             }
         }
+        selector
     }
 
     fn parse_declarations(&mut self) -> Vec<Declaration> {
@@ -226,6 +235,17 @@ mod tests {
                 tag_name: Some("h2".to_string()),
             }),
         ];
+        assert_eq!(Parser::parse_selectors(&mut get_parser(source)), expected);
+    }
+
+    #[test]
+    fn test_parse_class_selectors() {
+        let source = ".fruit.apple {";
+        let expected = vec![Selector::Simple(SimpleSelector {
+            id: None,
+            class: vec!["fruit".to_string(), "apple".to_string()],
+            tag_name: None,
+        })];
         assert_eq!(Parser::parse_selectors(&mut get_parser(source)), expected);
     }
 
