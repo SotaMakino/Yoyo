@@ -38,7 +38,7 @@ pub enum Unit {
     Px,
 }
 
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Color {
     r: u8,
     g: u8,
@@ -192,8 +192,27 @@ impl Parser {
                 self.consume_while(|char| char != ';');
                 Value::Length(length, Unit::Px)
             }
+            '#' => {
+                self.consume_char();
+                Value::Color(self.parse_color())
+            }
             _ => Value::Keyword(self.parse_name()),
         }
+    }
+
+    fn parse_color(&mut self) -> Color {
+        Color {
+            r: self.parse_hex_pair(),
+            g: self.parse_hex_pair(),
+            b: self.parse_hex_pair(),
+            a: 255,
+        }
+    }
+
+    fn parse_hex_pair(&mut self) -> u8 {
+        let pair_str = &self.input[self.pos..self.pos + 2];
+        self.pos += 2;
+        u8::from_str_radix(pair_str, 16).unwrap()
     }
 }
 
@@ -296,6 +315,20 @@ mod tests {
         assert_eq!(
             Parser::parse_value(&mut get_parser(source)),
             Value::Length(10.0, Unit::Px)
+        );
+    }
+
+    #[test]
+    fn test_parse_color_value() {
+        let source = "#812dd3";
+        assert_eq!(
+            Parser::parse_value(&mut get_parser(source)),
+            Value::Color(Color {
+                r: 129,
+                g: 45,
+                b: 211,
+                a: 255
+            })
         );
     }
 }
