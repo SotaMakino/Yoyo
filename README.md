@@ -1,5 +1,6 @@
 # Yoyo
 
-## memo
+## todo
 
-- [ ] support parsing self-closing tags.
+- [ ] parsing self-closing tags.
+- [ ] relative positioning. <https://www.w3.org/TR/CSS2/visuren.html#relative-positioning>

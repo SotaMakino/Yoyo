@@ -1,13 +1,44 @@
 use std::collections::HashMap;
 
-use crate::{css, dom};
+use crate::{
+    css::{self, Value},
+    dom,
+};
 
 type PropertyMap = HashMap<String, css::Value>;
 
 pub struct StyledNode<'a> {
-    node: &'a dom::Node,
-    specified_values: PropertyMap,
-    children: Vec<StyledNode<'a>>,
+    pub node: &'a dom::Node,
+    pub specified_values: PropertyMap,
+    pub children: Vec<StyledNode<'a>>,
+}
+
+pub enum Display {
+    Block,
+    Inline,
+    None,
+}
+
+impl StyledNode<'_> {
+    pub fn value(&self, name: &str) -> Option<Value> {
+        self.specified_values.get(name).map(|v| v.clone())
+    }
+
+    pub fn lookup(&self, name: &str, fallback_name: &str, default: &Value) -> Value {
+        self.value(name)
+            .unwrap_or_else(|| self.value(fallback_name).unwrap_or_else(|| default.clone()))
+    }
+
+    pub fn display(&self) -> Display {
+        match self.value("display") {
+            Some(Value::Keyword(s)) => match &*s {
+                "block" => Display::Block,
+                "inline" => Display::Inline,
+                _ => Display::None,
+            },
+            _ => Display::Inline,
+        }
+    }
 }
 
 pub fn matches(elem: &dom::ElementData, selector: &css::Selector) -> bool {
@@ -77,7 +108,7 @@ pub fn style_tree<'a>(root: &'a dom::Node, style_sheet: &'a css::StyleSheet) -> 
         specified_values: match root.node_type {
             dom::NodeType::Element(ref elem) => specified_values(elem, style_sheet),
             dom::NodeType::Text(_) => HashMap::new(),
-            dom::NodeType::Comment() => todo!(),
+            dom::NodeType::Comment => todo!(),
         },
         children: root
             .children

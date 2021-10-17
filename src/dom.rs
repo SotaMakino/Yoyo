@@ -10,7 +10,7 @@ pub struct Node {
 pub enum NodeType {
     Text(String),
     Element(ElementData),
-    Comment(),
+    Comment,
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -43,7 +43,7 @@ pub fn text(data: String) -> Node {
 
 pub fn comment() -> Node {
     Node {
-        node_type: NodeType::Comment(),
+        node_type: NodeType::Comment,
         children: Vec::new(),
     }
 }
@@ -81,7 +81,7 @@ mod tests {
         assert_eq!(
             comment(),
             Node {
-                node_type: NodeType::Comment(),
+                node_type: NodeType::Comment,
                 children: vec![]
             }
         );
