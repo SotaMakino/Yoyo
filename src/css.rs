@@ -67,9 +67,9 @@ impl Selector {
     }
 }
 
-struct Parser {
-    pos: usize,
-    input: String,
+pub struct Parser {
+    pub pos: usize,
+    pub input: String,
 }
 
 impl Parser {
@@ -104,7 +104,7 @@ impl Parser {
         self.consume_while(char::is_whitespace);
     }
 
-    fn parse_rules(&mut self) -> Rule {
+    pub fn parse_rules(&mut self) -> Rule {
         Rule {
             selectors: self.parse_selectors(),
             declarations: self.parse_declarations(),

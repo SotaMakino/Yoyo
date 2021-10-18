@@ -3,9 +3,9 @@ use std::collections::HashMap;
 use crate::dom;
 
 #[derive(Debug, PartialEq, Eq)]
-struct Parser {
-    pos: usize,
-    input: String,
+pub struct Parser {
+    pub pos: usize,
+    pub input: String,
 }
 
 impl Parser {

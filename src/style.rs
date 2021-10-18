@@ -7,6 +7,7 @@ use crate::{
 
 type PropertyMap = HashMap<String, css::Value>;
 
+#[derive(Debug)]
 pub struct StyledNode<'a> {
     pub node: &'a dom::Node,
     pub specified_values: PropertyMap,

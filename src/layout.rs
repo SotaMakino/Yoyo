@@ -3,7 +3,7 @@ use crate::{
     style::{self, Display},
 };
 
-#[derive(Default, Clone, Copy)]
+#[derive(Default, Debug, Clone, Copy)]
 struct Dimensions {
     content: Rect,
     padding: EdgeSizes,
@@ -26,7 +26,7 @@ impl Dimensions {
     }
 }
 
-#[derive(Default, Clone, Copy)]
+#[derive(Default, Debug, Clone, Copy)]
 struct Rect {
     width: f32,
     height: f32,
@@ -45,7 +45,7 @@ impl Rect {
     }
 }
 
-#[derive(Default, Clone, Copy)]
+#[derive(Default, Debug, Clone, Copy)]
 struct EdgeSizes {
     top: f32,
     right: f32,
@@ -53,7 +53,8 @@ struct EdgeSizes {
     left: f32,
 }
 
-struct LayoutBox<'a> {
+#[derive(Debug)]
+pub struct LayoutBox<'a> {
     dimensions: Dimensions,
     box_type: BoxType<'a>,
     children: Vec<LayoutBox<'a>>,
@@ -233,13 +234,14 @@ impl<'a> LayoutBox<'a> {
     }
 }
 
+#[derive(Debug)]
 enum BoxType<'a> {
     BlockNode(&'a style::StyledNode<'a>),
     InlineNode(&'a style::StyledNode<'a>),
     AnonymousBlock,
 }
 
-fn build_layout_tree<'a>(style_node: &'a style::StyledNode<'a>) -> LayoutBox<'a> {
+pub fn build_layout_tree<'a>(style_node: &'a style::StyledNode<'a>) -> LayoutBox<'a> {
     let mut root = LayoutBox::new(match style_node.display() {
         Display::Block => BoxType::BlockNode(style_node),
         Display::Inline => BoxType::InlineNode(style_node),
