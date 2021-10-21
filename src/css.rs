@@ -104,7 +104,19 @@ impl Parser {
         self.consume_while(char::is_whitespace);
     }
 
-    pub fn parse_rules(&mut self) -> Rule {
+    pub fn parse_rules(&mut self) -> Vec<Rule> {
+        let mut rules = Vec::new();
+        loop {
+            self.consume_whitespace();
+            if self.eof() {
+                break;
+            }
+            rules.push(self.parse_rule())
+        }
+        rules
+    }
+
+    pub fn parse_rule(&mut self) -> Rule {
         Rule {
             selectors: self.parse_selectors(),
             declarations: self.parse_declarations(),
@@ -225,6 +237,17 @@ impl Parser {
     }
 }
 
+pub fn parse(source: String) -> StyleSheet {
+    let mut parser = Parser {
+        pos: 0,
+        input: source,
+    };
+
+    StyleSheet {
+        rules: parser.parse_rules(),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -238,6 +261,20 @@ mod tests {
 
     #[test]
     fn test_parse_rules() {
+        let source = "
+        h1 {
+          margin: auto;
+        }
+
+        h2 {
+          color: #111111;
+        }
+        ";
+        println!("{:?}", Parser::parse_rules(&mut get_parser(source)));
+    }
+
+    #[test]
+    fn test_parse_rule() {
         let source = "h1,
         h2,
         h3 {
@@ -245,7 +282,7 @@ mod tests {
           display: inline;
         }
         ";
-        println!("{:?}", Parser::parse_rules(&mut get_parser(source)));
+        println!("{:?}", Parser::parse_rule(&mut get_parser(source)));
     }
 
     #[test]
