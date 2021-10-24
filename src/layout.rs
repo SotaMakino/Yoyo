@@ -4,34 +4,34 @@ use crate::{
 };
 
 #[derive(Default, Debug, Clone, Copy)]
-struct Dimensions {
-    content: Rect,
-    padding: EdgeSizes,
-    border: EdgeSizes,
-    margin: EdgeSizes,
+pub struct Dimensions {
+    pub content: Rect,
+    pub padding: EdgeSizes,
+    pub border: EdgeSizes,
+    pub margin: EdgeSizes,
 }
 
 impl Dimensions {
     // The area covered by the content area plus its padding.
-    fn padding_box(self) -> Rect {
+    pub fn padding_box(self) -> Rect {
         self.content.expanded_by(self.padding)
     }
     // The area covered by the content area plus padding and borders.
-    fn border_box(self) -> Rect {
+    pub fn border_box(self) -> Rect {
         self.padding_box().expanded_by(self.border)
     }
     // The area covered by the content area plus padding, borders, and margin.
-    fn margin_box(self) -> Rect {
+    pub fn margin_box(self) -> Rect {
         self.border_box().expanded_by(self.margin)
     }
 }
 
 #[derive(Default, Debug, Clone, Copy)]
-struct Rect {
-    width: f32,
-    height: f32,
-    x: f32,
-    y: f32,
+pub struct Rect {
+    pub width: f32,
+    pub height: f32,
+    pub x: f32,
+    pub y: f32,
 }
 
 impl Rect {
@@ -46,18 +46,18 @@ impl Rect {
 }
 
 #[derive(Default, Debug, Clone, Copy)]
-struct EdgeSizes {
-    top: f32,
-    right: f32,
-    bottom: f32,
-    left: f32,
+pub struct EdgeSizes {
+    pub top: f32,
+    pub right: f32,
+    pub bottom: f32,
+    pub left: f32,
 }
 
 #[derive(Debug)]
 pub struct LayoutBox<'a> {
-    dimensions: Dimensions,
-    box_type: BoxType<'a>,
-    children: Vec<LayoutBox<'a>>,
+    pub dimensions: Dimensions,
+    pub box_type: BoxType<'a>,
+    pub children: Vec<LayoutBox<'a>>,
 }
 
 impl<'a> LayoutBox<'a> {
@@ -234,8 +234,8 @@ impl<'a> LayoutBox<'a> {
     }
 }
 
-#[derive(Debug)]
-enum BoxType<'a> {
+#[derive(Debug, Clone, Copy)]
+pub enum BoxType<'a> {
     BlockNode(&'a style::StyledNode<'a>),
     InlineNode(&'a style::StyledNode<'a>),
     AnonymousBlock,
