@@ -94,16 +94,15 @@ impl<'a> LayoutBox<'a> {
 
     fn layout(&mut self, containing_block: Dimensions) {
         match self.box_type {
-            BoxType::BlockNode(_) => self.layout_block(&containing_block),
-            BoxType::InlineNode(_) => todo!(),
+            BoxType::BlockNode(_) | BoxType::InlineNode(_) => self.layout_block(&containing_block),
             BoxType::AnonymousBlock => todo!(),
         }
     }
 
     fn layout_block(&mut self, containing_block: &Dimensions) {
-        self.calculate_block_width(&containing_block);
+        self.calculate_block_width(containing_block);
 
-        self.calculate_block_position(&containing_block);
+        self.calculate_block_position(containing_block);
 
         self.layout_block_children();
 
@@ -114,7 +113,7 @@ impl<'a> LayoutBox<'a> {
         let style = self.get_style_node();
 
         let auto = Value::Keyword("auto".to_string());
-        let mut width = style.value("width").unwrap_or(auto.clone());
+        let mut width = style.value("width").unwrap_or_else(|| auto.clone());
 
         let zero = Value::Length(0.0, Unit::Px);
 
@@ -185,6 +184,18 @@ impl<'a> LayoutBox<'a> {
                 margin_right = Value::Length(half_of_underflow, Unit::Px);
             }
         }
+
+        let d = &mut self.dimensions;
+        d.content.width = width.to_px();
+
+        d.padding.left = padding_left.to_px();
+        d.padding.right = padding_right.to_px();
+
+        d.border.left = border_left.to_px();
+        d.border.right = border_right.to_px();
+
+        d.margin.left = margin_left.to_px();
+        d.margin.right = margin_right.to_px();
     }
 
     fn calculate_block_position(&mut self, containing_block: &Dimensions) {
@@ -221,17 +232,31 @@ impl<'a> LayoutBox<'a> {
         for child in &mut self.children {
             child.layout(*d);
             // Track the height so each child is laid out below the previous content.
-            d.content.height = d.content.height + child.dimensions.margin_box().height;
+            d.content.height += child.dimensions.margin_box().height;
         }
     }
 
     fn calculate_block_height(&mut self) {
         // If the height is set to an explicit length, use that exact length.
         // Otherwise, just keep the value set by `layout_block_children`.
-        if let Some(Value::Length(h, Px)) = self.get_style_node().value("height") {
+        if let Some(Value::Length(h, Unit::Px)) = self.get_style_node().value("height") {
             self.dimensions.content.height = h;
         }
     }
+}
+
+/// Transform a style tree into a layout tree.
+pub fn layout_tree<'a>(
+    node: &'a style::StyledNode<'a>,
+    mut containing_block: Dimensions,
+) -> LayoutBox<'a> {
+    // The layout algorithm expects the container height to start at 0.
+    // TODO: Save the initial containing block height, for calculating percent heights.
+    containing_block.content.height = 0.0;
+
+    let mut root_box = build_layout_tree(node);
+    root_box.layout(containing_block);
+    root_box
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -274,16 +299,17 @@ mod tests {
         h1,
         h2,
         h3 {
-          margin: auto;
-          display: inline;
+          margin: 10px;
+          width: 100px;
         }
     
         p {
             color: #ffffff;
+            padding-top: 33px;
         }
         ";
         let html = "
-            <h1 id='1'>Test</h1>
+            <h1 id='1'>Test<p>para</p></h1>
         ";
         let root = html::parse(html.to_string());
         let style_sheet = css::parse(css.to_string());

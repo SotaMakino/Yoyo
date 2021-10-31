@@ -4,11 +4,12 @@ use crate::{css, layout};
 
 type DisplayList = Vec<DisplayCommand>;
 
-enum DisplayCommand {
+#[derive(Debug)]
+pub enum DisplayCommand {
     SolidColor(css::Color, layout::Rect),
 }
 
-fn build_display_list(layout_root: &layout::LayoutBox) -> DisplayList {
+pub fn build_display_list(layout_root: &layout::LayoutBox) -> DisplayList {
     let mut list = Vec::new();
     render_layout_box(&mut list, layout_root);
     list
@@ -99,10 +100,20 @@ fn render_borders(list: &mut DisplayList, layout_box: &layout::LayoutBox) {
     ));
 }
 
-struct Canvas {
-    pixels: Vec<css::Color>,
-    width: usize,
-    height: usize,
+/// Paint a tree of LayoutBoxes to an array of pixels.
+pub fn paint(layout_root: &layout::LayoutBox, bounds: layout::Rect) -> Canvas {
+    let display_list = build_display_list(layout_root);
+    let mut canvas = Canvas::new(bounds.width as usize, bounds.height as usize);
+    for item in display_list {
+        canvas.paint_item(&item);
+    }
+    canvas
+}
+
+pub struct Canvas {
+    pub pixels: Vec<css::Color>,
+    pub width: usize,
+    pub height: usize,
 }
 
 impl Canvas {
@@ -139,13 +150,30 @@ impl Canvas {
             }
         }
     }
+}
 
-    fn paint(layout_root: &layout::LayoutBox, bounds: layout::Rect) -> Canvas {
-        let display_list = build_display_list(layout_root);
-        let mut canvas = Canvas::new(bounds.width as usize, bounds.height as usize);
-        for item in display_list {
-            canvas.paint_item(&item);
+#[cfg(test)]
+mod tests {
+    use crate::{html, style};
+
+    use super::*;
+
+    #[test]
+    fn test_build_display_list() {
+        let css = "
+        div {
+          width: 150px;
+          height: 50px;
+          background: #00ccff;
         }
-        canvas
+        ";
+        let html = "
+            <div><div></div></div>
+        ";
+        let root = html::parse(html.to_string());
+        let style_sheet = css::parse(css.to_string());
+        let style_node = style::style_tree(&root, &style_sheet);
+        let layout_box = layout::build_layout_tree(&style_node);
+        println!("{:?}", build_display_list(&layout_box));
     }
 }

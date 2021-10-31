@@ -22,7 +22,7 @@ pub enum Display {
 
 impl StyledNode<'_> {
     pub fn value(&self, name: &str) -> Option<Value> {
-        self.specified_values.get(name).map(|v| v.clone())
+        self.specified_values.get(name).cloned()
     }
 
     pub fn lookup(&self, name: &str, fallback_name: &str, default: &Value) -> Value {
