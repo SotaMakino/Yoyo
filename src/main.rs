@@ -1,3 +1,4 @@
+use std::env;
 use std::{
     fs::File,
     io::{BufWriter, Read},
@@ -8,6 +9,7 @@ extern crate image;
 
 mod css;
 mod dom;
+mod file;
 mod html;
 mod layout;
 mod painting;
@@ -15,10 +17,9 @@ mod pdf;
 mod style;
 
 fn main() {
+    let config = file::Config::new(env::args()).unwrap();
     // Parse command-line options:
     let mut opts = getopts::Options::new();
-    opts.optopt("h", "html", "HTML document", "FILENAME");
-    opts.optopt("c", "css", "CSS stylesheet", "FILENAME");
     opts.optopt("o", "output", "Output file", "FILENAME");
     opts.optopt("f", "format", "Output file format", "png | pdf");
 
@@ -35,8 +36,8 @@ fn main() {
     };
 
     // Read input files:
-    let html = read_source(str_arg("h", "examples/test.html"));
-    let css = read_source(str_arg("c", "examples/test.css"));
+    let html = file::read_source(config.html_filename);
+    let css = file::read_source(config.css_filename);
 
     // Since we don't have an actual window, hard-code the "viewport" size.
     let mut viewport: layout::Dimensions = Default::default();
@@ -70,13 +71,4 @@ fn main() {
     } else {
         println!("Error saving output as {}", filename)
     }
-}
-
-fn read_source(filename: String) -> String {
-    let mut str = String::new();
-    File::open(filename)
-        .unwrap()
-        .read_to_string(&mut str)
-        .unwrap();
-    str
 }
