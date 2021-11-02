@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::{
     css::{self, Value},
-    dom::{self},
+    dom,
 };
 
 type PropertyMap = HashMap<String, css::Value>;
