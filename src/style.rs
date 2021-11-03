@@ -37,7 +37,7 @@ impl StyledNode<'_> {
                 "inline" => Display::Inline,
                 _ => Display::None,
             },
-            _ => Display::Inline,
+            _ => Display::Block,
         }
     }
 }

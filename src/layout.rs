@@ -94,12 +94,14 @@ impl<'a> LayoutBox<'a> {
 
     fn layout(&mut self, containing_block: Dimensions) {
         match self.box_type {
-            BoxType::BlockNode(_) | BoxType::InlineNode(_) => self.layout_block(&containing_block),
-            BoxType::AnonymousBlock => todo!(),
+            BoxType::BlockNode(_) => self.layout_block(&containing_block),
+            BoxType::InlineNode(_) => self.layout_inline(&containing_block),
+            BoxType::AnonymousBlock => self.layout_anonymous_block(&containing_block),
         }
     }
 
     fn layout_block(&mut self, containing_block: &Dimensions) {
+        println!("{:?}", "its block");
         self.calculate_block_width(containing_block);
 
         self.calculate_block_position(containing_block);
@@ -107,6 +109,31 @@ impl<'a> LayoutBox<'a> {
         self.layout_block_children();
 
         self.calculate_block_height();
+    }
+
+    fn layout_inline(&mut self, containing_block: &Dimensions) {
+        println!("{:?}", "its inline");
+        // self.calculate_block_width(containing_block);
+
+        // self.calculate_block_position(containing_block);
+
+        // self.layout_block_children();
+
+        // self.calculate_block_height();
+    }
+
+    fn layout_anonymous_block(&mut self, containing_block: &Dimensions) {
+        println!("{:?}", "its anonymous");
+        let d = &mut self.dimensions;
+        // width
+        d.content.width = containing_block.content.width;
+        //position
+        d.content.x = containing_block.content.x;
+        d.content.y = containing_block.content.height + containing_block.content.y;
+
+        self.layout_inline_children();
+
+        // TODO: height
     }
 
     fn calculate_block_width(&mut self, containing_block: &Dimensions) {
@@ -233,6 +260,13 @@ impl<'a> LayoutBox<'a> {
             child.layout(*d);
             // Track the height so each child is laid out below the previous content.
             d.content.height += child.dimensions.margin_box().height;
+        }
+    }
+
+    fn layout_inline_children(&mut self) {
+        let d = &mut self.dimensions;
+        for child in &mut self.children {
+            child.layout(*d);
         }
     }
 
