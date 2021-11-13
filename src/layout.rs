@@ -101,7 +101,7 @@ impl<'a> LayoutBox<'a> {
     }
 
     fn layout_block(&mut self, containing_block: &Dimensions) {
-        println!("{:?}", "its block");
+        println!("its block");
         self.calculate_block_width(containing_block);
 
         self.calculate_position_by_styles();
@@ -112,8 +112,19 @@ impl<'a> LayoutBox<'a> {
         self.calculate_block_height();
     }
 
+    fn layout_anonymous_block(&mut self, containing_block: &Dimensions) {
+        println!("its anonymous");
+
+        self.calculate_anonymous_position(containing_block);
+
+        self.layout_inline_children(containing_block);
+
+        let d = &mut self.dimensions;
+        d.content.height = containing_block.content.height;
+    }
+
     fn layout_inline(&mut self, containing_block: &Dimensions) {
-        println!("{:?}", "its inline");
+        println!("its inline");
         self.calculate_position_by_styles();
         self.calculate_inline_position(containing_block);
 
@@ -121,17 +132,7 @@ impl<'a> LayoutBox<'a> {
 
         self.calculate_block_height();
 
-        self.layout_inline_children();
-    }
-
-    fn layout_anonymous_block(&mut self, containing_block: &Dimensions) {
-        println!("{:?}", "its anonymous");
-        let d = &mut self.dimensions;
-        d.content.height = containing_block.content.height;
-        d.content.x = containing_block.content.x;
-        d.content.y = containing_block.content.height + containing_block.content.y;
-
-        self.layout_inline_children();
+        self.layout_inline_children(containing_block);
     }
 
     fn calculate_block_width(&mut self, containing_block: &Dimensions) {
@@ -280,6 +281,12 @@ impl<'a> LayoutBox<'a> {
             + d.padding.top;
     }
 
+    fn calculate_anonymous_position(&mut self, containing_block: &Dimensions) {
+        let d = &mut self.dimensions;
+        d.content.x = containing_block.content.x;
+        d.content.y = containing_block.content.height + containing_block.content.y
+    }
+
     fn calculate_inline_position(&mut self, containing_block: &Dimensions) {
         let d = &mut self.dimensions;
         d.content.x = containing_block.content.x
@@ -299,11 +306,20 @@ impl<'a> LayoutBox<'a> {
         }
     }
 
-    fn layout_inline_children(&mut self) {
+    fn layout_inline_children(&mut self, containing_block: &Dimensions) {
         let d = &mut self.dimensions;
         for child in &mut self.children {
+            println!("Target: {:?}", d.content);
+            println!("Parent: {:?}", containing_block.content);
             child.layout(*d);
-            d.content.width += child.dimensions.margin_box().width;
+            let new_width = d.content.width + child.dimensions.margin_box().width;
+            if new_width > containing_block.content.width {
+                println!("over");
+                d.content.width = 0.0;
+                d.content.y += containing_block.content.y;
+            } else {
+                d.content.width = new_width;
+            }
         }
     }
 
