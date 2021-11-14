@@ -118,9 +118,6 @@ impl<'a> LayoutBox<'a> {
         self.calculate_anonymous_position(containing_block);
 
         self.layout_inline_children(containing_block);
-
-        let d = &mut self.dimensions;
-        d.content.height = containing_block.content.height;
     }
 
     fn layout_inline(&mut self, containing_block: &Dimensions) {
@@ -308,15 +305,19 @@ impl<'a> LayoutBox<'a> {
 
     fn layout_inline_children(&mut self, containing_block: &Dimensions) {
         let d = &mut self.dimensions;
+        let mut is_first = true;
         for child in &mut self.children {
-            println!("Target: {:?}", d.content);
-            println!("Parent: {:?}", containing_block.content);
             child.layout(*d);
+            if is_first {
+                d.content.height += child.dimensions.margin_box().height;
+                is_first = false;
+            }
             let new_width = d.content.width + child.dimensions.margin_box().width;
             if new_width > containing_block.content.width {
                 println!("over");
                 d.content.width = 0.0;
                 d.content.y += containing_block.content.y;
+                d.content.height += child.dimensions.margin_box().height;
             } else {
                 d.content.width = new_width;
             }
