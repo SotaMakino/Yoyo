@@ -109,7 +109,7 @@ impl<'a> LayoutBox<'a> {
 
         self.layout_block_children();
 
-        self.calculate_block_height();
+        self.calculate_height();
     }
 
     fn layout_anonymous_block(&mut self, containing_block: &Dimensions) {
@@ -127,7 +127,7 @@ impl<'a> LayoutBox<'a> {
 
         self.calculate_inline_width();
 
-        self.calculate_block_height();
+        self.calculate_height();
 
         self.layout_inline_children(containing_block);
     }
@@ -324,9 +324,7 @@ impl<'a> LayoutBox<'a> {
         }
     }
 
-    fn calculate_block_height(&mut self) {
-        // If the height is set to an explicit length, use that exact length.
-        // Otherwise, just keep the value set by `layout_block_children`.
+    fn calculate_height(&mut self) {
         if let Some(Value::Length(h, Unit::Px)) = self.get_style_node().value("height") {
             self.dimensions.content.height = h;
         }
