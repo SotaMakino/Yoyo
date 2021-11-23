@@ -1,12 +1,19 @@
 html {
   width: 600px;
   margin: auto;
+  display: block;
+}
+
+div {
+  display: block;
+}
+
+p {
+  display: block;
 }
 
 span {
   display: inline;
-  width: 100px;
-  height: 100px;
   background: #ffff00;
   border-color: #cc0000;
   border-width: 4px;

@@ -1,8 +1,8 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, ops::Add};
 
 use crate::{
     css::{self, Value},
-    dom,
+    dom::{self, NodeType},
 };
 
 type PropertyMap = HashMap<String, css::Value>;
@@ -21,6 +21,13 @@ pub enum Display {
 }
 
 impl StyledNode<'_> {
+    pub fn text(&self) -> Option<String> {
+        match &self.node.node_type {
+            NodeType::Text(text) => Some(text.clone()),
+            _ => None,
+        }
+    }
+
     pub fn value(&self, name: &str) -> Option<Value> {
         self.specified_values.get(name).cloned()
     }
@@ -37,7 +44,7 @@ impl StyledNode<'_> {
                 "inline" => Display::Inline,
                 _ => Display::None,
             },
-            _ => Display::Block,
+            _ => Display::Inline,
         }
     }
 }

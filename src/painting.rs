@@ -1,6 +1,6 @@
 use std::iter::repeat;
 
-use crate::{css, layout};
+use crate::{css, dom::text, layout};
 
 type DisplayList = Vec<DisplayCommand>;
 
@@ -18,10 +18,27 @@ pub fn build_display_list(layout_root: &layout::LayoutBox) -> DisplayList {
 fn render_layout_box(list: &mut DisplayList, layout_box: &layout::LayoutBox) {
     render_background(list, layout_box);
     render_borders(list, layout_box);
+    render_text(list, layout_box);
     // TODO: render text
 
     for child in &layout_box.children {
         render_layout_box(list, child);
+    }
+}
+
+fn render_text(list: &mut DisplayList, layout_box: &layout::LayoutBox) {
+    if let Some(text) = get_text(layout_box) {
+        println!("i got it. {:?}", text);
+    }
+}
+
+fn get_text(layout_box: &layout::LayoutBox) -> Option<String> {
+    match layout_box.box_type {
+        layout::BoxType::InlineNode(style) => match style.text() {
+            Some(text) => Some(text),
+            _ => None,
+        },
+        _ => None,
     }
 }
 
