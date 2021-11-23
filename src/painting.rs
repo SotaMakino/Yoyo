@@ -7,6 +7,7 @@ type DisplayList = Vec<DisplayCommand>;
 #[derive(Debug)]
 pub enum DisplayCommand {
     SolidColor(css::Color, layout::Rect),
+    Text(String, css::Color, layout::Rect),
 }
 
 pub fn build_display_list(layout_root: &layout::LayoutBox) -> DisplayList {
@@ -19,7 +20,6 @@ fn render_layout_box(list: &mut DisplayList, layout_box: &layout::LayoutBox) {
     render_background(list, layout_box);
     render_borders(list, layout_box);
     render_text(list, layout_box);
-    // TODO: render text
 
     for child in &layout_box.children {
         render_layout_box(list, child);
@@ -29,6 +29,16 @@ fn render_layout_box(list: &mut DisplayList, layout_box: &layout::LayoutBox) {
 fn render_text(list: &mut DisplayList, layout_box: &layout::LayoutBox) {
     if let Some(text) = get_text(layout_box) {
         println!("i got it. {:?}", text);
+        list.push(DisplayCommand::Text(
+            text,
+            css::Color {
+                r: 129,
+                g: 45,
+                b: 211,
+                a: 255,
+            },
+            layout_box.dimensions.border_box(),
+        ))
     }
 }
 
@@ -150,6 +160,19 @@ impl Canvas {
         match item {
             DisplayCommand::SolidColor(color, rect) => {
                 // Clip the rectangle to the canvas boundaries.
+                let x0 = rect.x.clamp(0.0, self.width as f32) as usize;
+                let y0 = rect.y.clamp(0.0, self.height as f32) as usize;
+                let x1 = (rect.x + rect.width).clamp(0.0, self.width as f32) as usize;
+                let y1 = (rect.y + rect.height).clamp(0.0, self.height as f32) as usize;
+
+                for y in y0..y1 {
+                    for x in x0..x1 {
+                        // TODO: alpha compositing with existing pixel
+                        self.pixels[x + y * self.width] = *color;
+                    }
+                }
+            }
+            DisplayCommand::Text(text, color, rect) => {
                 let x0 = rect.x.clamp(0.0, self.width as f32) as usize;
                 let y0 = rect.y.clamp(0.0, self.height as f32) as usize;
                 let x1 = (rect.x + rect.width).clamp(0.0, self.width as f32) as usize;

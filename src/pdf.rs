@@ -31,8 +31,22 @@ pub fn render<W: Write + Seek>(
 }
 
 fn render_item<W: Write>(item: &painting::DisplayCommand, output: &mut W) -> io::Result<()> {
-    match *item {
+    match &*item {
         painting::DisplayCommand::SolidColor(color, rect) => {
+            writeln!(
+                output,
+                "{} {} {} sc {} {} {} {} re f",
+                // FIXME: alpha transparency
+                color.r,
+                color.g,
+                color.b,
+                rect.x,
+                rect.y,
+                rect.width,
+                rect.height
+            )
+        }
+        painting::DisplayCommand::Text(text, color, rect) => {
             writeln!(
                 output,
                 "{} {} {} sc {} {} {} {} re f",
