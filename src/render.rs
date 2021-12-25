@@ -28,7 +28,6 @@ pub fn to_element_container(layout: LayoutBox) -> ElementContainer {
             } => {
                 let mut panel =
                     Panel::new(LinearLayout::vertical()).title(element.tag_name.clone());
-                // element.tag_name.as_str();
                 for child in layout.children.into_iter() {
                     panel.with_view_mut(|v| v.add_child(to_element_container(child)));
                 }
@@ -52,7 +51,7 @@ pub fn to_element_container(layout: LayoutBox) -> ElementContainer {
                     (DummyView {}).into_boxed_view()
                 }
             }
-            _ => (DummyView {}).into_boxed_view(),
+            _ => new_element_container(),
         },
         BoxType::AnonymousBlock => {
             let mut p = Panel::new(LinearLayout::horizontal());
