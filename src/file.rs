@@ -12,11 +12,11 @@ impl Config {
         args.next();
         let html_filename = match args.next() {
             Some(arg) => arg,
-            None => return Err("Didn't get a html filepath"),
+            None => return Err("Didn't get a html file path"),
         };
         let css_filename = match args.next() {
             Some(arg) => arg,
-            None => return Err("Didn't get a css filepath"),
+            None => return Err("Didn't get a css file path"),
         };
 
         Ok(Config {
