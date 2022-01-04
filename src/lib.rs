@@ -21,8 +21,11 @@ pub fn run(config: file::Config) {
     let mut siv = cursive::default();
     let container = Some(render::to_element_container(layout_root));
     if let Some(c) = container {
-        siv.add_fullscreen_layer(c);
+        siv.add_layer(c);
     }
+
+    siv.menubar().add_leaf("Quit", |s| s.quit());
+    siv.set_autohide_menu(false);
 
     siv.run();
 }
