@@ -115,8 +115,7 @@ pub fn style_tree<'a>(root: &'a dom::Node, style_sheet: &'a css::StyleSheet) -> 
         node: root,
         specified_values: match root.node_type {
             dom::NodeType::Element(ref elem) => specified_values(elem, style_sheet),
-            dom::NodeType::Text(_) => HashMap::new(),
-            dom::NodeType::Comment => todo!(),
+            _ => HashMap::new(),
         },
         children: root
             .children
