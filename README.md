@@ -1,7 +1,5 @@
 # Yoyo
 
-## About
-
 This project is to learn the basic workings of a browser using [the classic browser tutorial](https://limpet.net/mbrubeck/2014/08/08/toy-layout-engine-1.html) by Matt Brubeck. I've additionally implemented inline layout, text rendering, a few more html/css specs, and unit tests. [The other great browser guide](https://browserbook.shift-js.info/chapters/rendering) helped me to implement the painting function. Thank you!
 
 ## What I learned
